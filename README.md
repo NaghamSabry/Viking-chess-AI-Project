@@ -27,8 +27,8 @@ The AI opponent utilizes the **Alpha-Beta Pruning** algorithm to decide on the b
 
 
 ## 👥 Team Members
-* [@NaghamSabry](https://github.com/NaghamSabry)
-* [@marym ali](https://github.com/marim55555) 
-* [@Seifeldeenanwar](https://github.com/Seifeldeenanwar) 
+* [@Nagham Sabry](https://github.com/NaghamSabry)
+* [@Marym Ali](https://github.com/marim55555) 
+* [@Seifeldeen Anwar](https://github.com/Seifeldeenanwar) 
 * [@Jasmine Mohamed](https://github.com/jasminemohammed1) 
-* [@username5](https://github.com/username5) 
+* [@Tibian Tarig](https://github.com/20220943-pixel) 
