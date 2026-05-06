@@ -4,7 +4,6 @@ import customtkinter as ctk
 from pyswip import Prolog
 import re
 
-# --- الإعدادات العامة للمظهر ---
 ctk.set_appearance_mode("dark")
 
 class TablutGUI:
@@ -26,7 +25,7 @@ class TablutGUI:
         self.difficulty = 'easy'
         self.is_paused = False
         self.board_data = []
-        self.current_player = 'a' # المهاجم يبدأ دائماً
+        self.current_player = 'a' 
         
         self.setup_main_container()
         self.show_start_screen()
@@ -57,7 +56,7 @@ class TablutGUI:
 
         start_btn = ctk.CTkButton(start_frame, text="START MISSION", font=("Arial", 20, "bold"),
                                   height=60, width=300, corner_radius=30,
-                                  fg_color="#FFD700", text_color="#000", command=self.initiate_game)
+                                  fg_color="#FFD700", text_color="#000", hover_color="#C9A200", command=self.initiate_game)
         start_btn.pack(pady=40)
 
     def setup_game_ui(self):
@@ -70,24 +69,31 @@ class TablutGUI:
 
         ctk.CTkLabel(self.sidebar, text="AEGIS SYSTEM", font=("Cinzel", 32, "bold"), text_color="#FFD700").pack(pady=40)
 
-        self.pause_btn = ctk.CTkButton(self.sidebar, text="PAUSE", font=("Arial", 16, "bold"),
-                                      height=45, fg_color="#A44", command=self.toggle_pause)
-        self.pause_btn.pack(pady=15, padx=30, fill="x")
+        self.pause_btn = ctk.CTkButton(self.sidebar, text=" ⏸  PAUSE SYSTEM", font=("Arial", 15, "bold"),
+                                      height=50, corner_radius=10,
+                                      fg_color="#331a1a", border_color="#A44", border_width=2,
+                                      hover_color="#552222", command=self.toggle_pause)
+        self.pause_btn.pack(pady=10, padx=30, fill="x")
         
-        self.resume_btn = ctk.CTkButton(self.sidebar, text="RESUME", font=("Arial", 16, "bold"),
-                                       height=45, fg_color="#4A4", state="disabled", command=self.toggle_pause)
-        self.resume_btn.pack(pady=15, padx=30, fill="x")
+        self.resume_btn = ctk.CTkButton(self.sidebar, text=" ▶  RESUME MISSION", font=("Arial", 15, "bold"),
+                                       height=50, corner_radius=10,
+                                       fg_color="#1a331a", border_color="#4A4", border_width=2,
+                                       state="disabled", hover_color="#225522", command=self.toggle_pause)
+        self.resume_btn.pack(pady=10, padx=30, fill="x")
 
-        info_frame = ctk.CTkFrame(self.sidebar, fg_color="#222", corner_radius=10)
+        info_frame = ctk.CTkFrame(self.sidebar, fg_color="#222", corner_radius=15, border_color="#333", border_width=1)
         info_frame.pack(pady=40, padx=20, fill="x")
         
-        side_name = 'Defenders' if self.human_side=='d' else 'Attackers'
+        side_name = 'DEFENDERS' if self.human_side=='d' else 'ATTACKERS'
         info_text = f"PLAYER SIDE: {side_name}\n\nMISSION LEVEL: {self.difficulty.upper()}"
-        self.info_label = ctk.CTkLabel(info_frame, text=info_text, justify="left", font=("Arial", 15, "bold"), pady=20)
+        self.info_label = ctk.CTkLabel(info_frame, text=info_text, justify="left", font=("Consolas", 14), pady=20, text_color="#AAA")
         self.info_label.pack()
 
-        ctk.CTkButton(self.sidebar, text="RETURN TO MENU", fg_color="transparent", border_width=1, 
-                     command=self.show_start_screen).pack(side="bottom", pady=40, padx=30, fill="x")
+        self.back_btn = ctk.CTkButton(self.sidebar, text=" ⬅  EXIT TO BASE", font=("Arial", 14, "bold"),
+                                     fg_color="transparent", border_width=1, border_color="#555",
+                                     hover_color="#333", height=45,
+                                     command=self.show_start_screen)
+        self.back_btn.pack(side="bottom", pady=40, padx=30, fill="x")
 
         self.board_canvas = tk.Canvas(self.main_container, width=self.canvas_dim, height=self.canvas_dim, 
                                       bg="#1a1a1a", highlightthickness=0)
@@ -106,7 +112,6 @@ class TablutGUI:
         if res:
             self.board_data = res[0]['Board']
             self.draw_board()
-            # إذا كان الكمبيوتر هو المهاجم، يتحرك أولاً
             if self.computer_side == 'a':
                 self.root.after(1000, self.computer_move)
 
@@ -139,7 +144,7 @@ class TablutGUI:
         
         if self.selected_tile:
             fr, fc = self.selected_tile
-            if (fr, fc) == (row, col): # إلغاء التحديد
+            if (fr, fc) == (row, col):
                 self.selected_tile = None
                 self.draw_board()
             else:
@@ -153,7 +158,6 @@ class TablutGUI:
 
     def execute_move(self, fr, fc, tr, tc):
         try:
-            # التحقق من الحركة وتحديث اللوحة في استعلام واحد
             query = f"valid_move({self.board_data}, move({fr}, {fc}, {tr}, {tc}), _), update_board({self.board_data}, move({fr}, {fc}, {tr}, {tc}), NewBoard)"
             res = list(self.prolog.query(query))
             if res:
@@ -175,16 +179,12 @@ class TablutGUI:
             self.root.after(500, self.computer_move)
             return
         
-        # تحويل الصعوبة لعمق البحث
         depth_map = {"easy": 1, "medium": 2, "hard": 3}
         d = depth_map.get(self.difficulty, 1)
-        
-        # إظهار حالة التفكير
         self.root.config(cursor="watch")
         self.root.update()
 
         try:
-            # استدعاء Alpha-Beta
             query = f"alphabeta({d}, ['{self.computer_side}', {self.board_data}], -1000000, 1000000, Move, _)"
             res = list(self.prolog.query(query))
             
@@ -212,7 +212,6 @@ class TablutGUI:
         win_res = list(self.prolog.query(f"is_winner({self.board_data}, Winner)"))
         if win_res:
             winner = win_res[0]['Winner']
-            # Winner يأتي كـ "Atom" من البرولوج، نحوله لنص
             w_str = str(winner)
             msg = "VICTORY FOR DEFENDERS!" if w_str == 'd' else "ATTACKERS HAVE CAPTURED THE KING!"
             messagebox.showinfo("MISSION COMPLETE", msg)
@@ -222,8 +221,12 @@ class TablutGUI:
 
     def toggle_pause(self):
         self.is_paused = not self.is_paused
-        self.pause_btn.configure(state="disabled" if self.is_paused else "normal")
-        self.resume_btn.configure(state="normal" if self.is_paused else "disabled")
+        if self.is_paused:
+            self.pause_btn.configure(state="disabled", border_color="#555")
+            self.resume_btn.configure(state="normal", border_color="#4A4")
+        else:
+            self.pause_btn.configure(state="normal", border_color="#A44")
+            self.resume_btn.configure(state="disabled", border_color="#555")
 
 if __name__ == "__main__":
     root = ctk.CTk()
